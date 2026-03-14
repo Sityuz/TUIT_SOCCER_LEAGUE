@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ LaLiga Championship Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0c10;--bg2:#0f1219;--bg3:#161b26;
+  --surface:#1c2333;--surface2:#232d42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --gold:#f5c518;--gold2:#d4a80a;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+  --text:#e8eaf0;--text2:#8b95a8;--text3:#4a5568;
+  --font-d:'Bebas Neue',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --r:12px;--rs:8px;
+  --shadow:0 4px 32px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.logo-ball{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(245,197,24,.3);flex-shrink:0}
+.logo-name{font-family:var(--font-d);font-size:22px;letter-spacing:1px;line-height:1}
+.logo-sub{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-sect{margin-bottom:22px}
+.nav-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);border:none;background:none;width:100%;text-align:left;transition:all .2s;position:relative}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(245,197,24,.13),rgba(245,197,24,.04));color:var(--gold);border:1px solid rgba(245,197,24,.2)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--gold);border-radius:0 2px 2px 0}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center}
+.sidebar-foot{padding:14px;border-top:1px solid var(--border)}
+.admin-pill{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--surface);border-radius:var(--rs);font-size:12px}
+.admin-av{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0}
+.main{flex:1;margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:var(--font-d);font-size:26px;letter-spacing:2px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.content{flex:1;padding:28px;max-width:1400px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rs);font-family:var(--font-b);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,197,24,.3)}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-danger:hover{background:rgba(239,68,68,.22)}
+.btn-success{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.btn-success:hover{background:rgba(34,197,94,.22)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── CARDS ── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{font-family:var(--font-d);font-size:19px;letter-spacing:1px}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--gold))}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.stat-val{font-family:var(--font-d);font-size:38px;line-height:1}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.stat-ico{position:absolute;top:16px;right:16px;font-size:26px;opacity:.15}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:11px 14px;background:var(--surface);color:var(--text3);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border2);white-space:nowrap}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
+.tbl .td-s{font-weight:600;color:var(--text)}
+.pos{font-family:var(--font-m);font-weight:500;color:var(--text3)}
+.pos.cl{color:var(--blue)}
+.pos.el{color:var(--green)}
+.pos.rel{color:var(--red)}
+.team-cell{display:flex;align-items:center;gap:11px}
+.team-logo{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#fff;flex-shrink:0;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.pts{font-family:var(--font-d);font-size:18px;color:var(--gold)}
+.zone-sep td{border-top:2px solid rgba(59,130,246,.3)!important}
+.zone-sep2 td{border-top:2px solid rgba(239,68,68,.3)!important}
+
+/* ── MATCH CARD ── */
+.match-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer}
+.match-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.match-teams{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.match-team{display:flex;align-items:center;gap:9px;flex:1}
+.match-team.away{flex-direction:row-reverse;text-align:right}
+.match-team-name{font-weight:600;font-size:14px}
+.match-score{font-family:var(--font-d);font-size:28px;letter-spacing:4px;min-width:90px;text-align:center;flex-shrink:0}
+.match-score.sched{font-size:18px;color:var(--text3);letter-spacing:2px}
+.match-meta{text-align:right;min-width:110px;flex-shrink:0}
+.match-date{font-size:11px;color:var(--text3)}
+.match-wk{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.badge.finished{background:rgba(34,197,94,.12);color:var(--green)}
+.badge.scheduled{background:rgba(59,130,246,.12);color:var(--blue)}
+.badge.live{background:rgba(239,68,68,.12);color:var(--red);animation:pulse 1s ease-in-out infinite}
+.badge.pending{background:rgba(245,197,24,.12);color:var(--gold)}
+.badge.reviewed{background:rgba(59,130,246,.12);color:var(--blue)}
+.badge.resolved{background:rgba(34,197,94,.12);color:var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ── FORMS ── */
+.fg{margin-bottom:18px}
+.fl{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.fi{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 13px;color:var(--text);font-family:var(--font-b);font-size:13px;transition:border-color .2s,box-shadow .2s;outline:none}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.1)}
+.fi::placeholder{color:var(--text3)}
+.fi-sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a5568'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:32px;cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.color-grp{display:flex;gap:9px;align-items:center}
+.color-grp input[type=color]{width:46px;height:38px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface);cursor:pointer;padding:3px}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(18px) scale(.97);transition:transform .25s;box-shadow:var(--shadow)}
+.modal-ov.open .modal{transform:translateY(0) scale(1)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-family:var(--font-d);font-size:22px;letter-spacing:1px}
+.modal-x{width:30px;height:30px;border-radius:50%;background:var(--surface);border:none;cursor:pointer;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-x:hover{background:var(--surface2);color:var(--text)}
+.modal-foot{display:flex;gap:9px;justify-content:flex-end;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--surface2);border-radius:var(--rs);padding:13px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow);border-left:3px solid var(--gold);min-width:260px;animation:tin .3s ease}
+.toast.success{border-color:var(--green)}
+.toast.error{border-color:var(--red)}
+@keyframes tin{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tout{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+.toast.out{animation:tout .3s ease forwards}
+
+/* ── LOGIN ── */
+.login-wrap{position:fixed;inset:0;background:var(--bg);z-index:2000;display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 25% 25%,rgba(245,197,24,.05) 0%,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(59,130,246,.04) 0%,transparent 55%)}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:44px 38px;width:100%;max-width:390px;box-shadow:var(--shadow),0 0 40px rgba(245,197,24,.1)}
+.login-ico{width:60px;height:60px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;box-shadow:0 8px 28px rgba(245,197,24,.3)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:var(--r);padding:36px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero::before{content:'⚽';position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:110px;opacity:.05;user-select:none}
+.hero-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.hero-title{font-family:var(--font-d);font-size:44px;letter-spacing:3px;line-height:1;margin-bottom:10px}
+.hero-sub{color:var(--text2);font-size:14px;max-width:480px;line-height:1.6}
+
+/* ── MISC ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px}
+.match-list{display:flex;flex-direction:column;gap:7px}
+.mwk-hd{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 0 4px;border-bottom:1px solid var(--border);margin-top:6px}
+.filter-bar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px;align-items:center}
+.chip{padding:5px 13px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.chip:hover,.chip.on{background:rgba(245,197,24,.13);border-color:rgba(245,197,24,.35);color:var(--gold)}
+.empty{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty-ico{font-size:44px;margin-bottom:14px;opacity:.3}
+.search-wrap{position:relative;flex:1;max-width:280px}
+.search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px}
+.search-fi{padding-left:34px}
+.pages{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:20px}
+.pg-btn{width:34px;height:34px;border-radius:var(--rs);background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.pg-btn:hover{background:var(--surface2);color:var(--text)}
+.pg-btn.on{background:var(--gold);color:#000;border-color:var(--gold)}
+.pg-btn:disabled{opacity:.3;cursor:not-allowed}
+.hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:7px}
+.hamburger span{width:20px;height:2px;background:var(--text2);border-radius:2px;transition:all .3s}
+.fade{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .topbar{padding:12px 14px}
+  .content{padding:14px}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .frow,.frow3{grid-template-columns:1fr}
+  .hero-title{font-size:30px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .match-card{flex-wrap:wrap}
+  .match-meta{min-width:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap" style="display:none">
+  <div class="login-card">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="login-ico">⚽</div>
+      <div style="font-family:var(--font-d);font-size:28px;letter-spacing:2px">ADMIN LOGIN</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">Football Championship Manager</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Username</label>
+      <input id="lUser" class="fi" placeholder="admin" value="admin">
+    </div>
+    <div class="fg">
+      <label class="fl">Password</label>
+      <input id="lPass" class="fi" type="password" placeholder="••••••••" value="admin123" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px" onclick="doLogin()">🔐 Sign In</button>
+    <div style="margin-top:12px;text-align:center">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('loginWrap').style.display='none'">← Back to Public View</button>
+    </div>
+    <div style="margin-top:18px;padding:11px;background:rgba(245,197,24,.07);border-radius:8px;font-size:11px;color:var(--text2);text-align:center">
+      Default credentials: <strong>admin</strong> / <strong>admin123</strong>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-ball">⚽</div>
+      <div><div class="logo-name">TUIT</div><div class="logo-sub">Championship</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-sect">
+        <div class="nav-lbl">Public</div>
+        <button class="nav-item active" id="n-home"       onclick="go('home')"><span class="nav-icon">🏠</span>Home</button>
+        <button class="nav-item"        id="n-standings"  onclick="go('standings')"><span class="nav-icon">📊</span>League Table</button>
+        <button class="nav-item"        id="n-matches"    onclick="go('matches')"><span class="nav-icon">⚽</span>Match Results</button>
+        <button class="nav-item"        id="n-teams"      onclick="go('teams')"><span class="nav-icon">🛡️</span>Teams</button>
+        <button class="nav-item"        id="n-report"     onclick="go('report')"><span class="nav-icon">📢</span>Report Issue</button>
+      </div>
+      <div class="nav-sect" id="adminNav" style="display:none">
+        <div class="nav-lbl">Admin</div>
+        <button class="nav-item" id="n-admin-dash"    onclick="go('admin-dash')"><span class="nav-icon">📈</span>Dashboard</button>
+        <button class="nav-item" id="n-admin-teams"   onclick="go('admin-teams')"><span class="nav-icon">🛡️</span>Manage Teams</button>
+        <button class="nav-item" id="n-admin-matches" onclick="go('admin-matches')"><span class="nav-icon">🎯</span>Manage Matches</button>
+        <button class="nav-item" id="n-admin-reports" onclick="go('admin-reports')">
+          
+          <span class="nav-badge" id="rpBadge" style="display:none">0</span>
+        </button>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <div id="authArea">
+        <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="document.getElementById('loginWrap').style.display='flex'">🔐 Admin Login</button>
+      </div>
+      <div id="adminArea" style="display:none">
+        <div class="admin-pill">
+          <div class="admin-av" id="adminAv">A</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="adminName">Admin</div>
+            <div style="font-size:10px;color:var(--text3)">Administrator</div>
+          </div>
+          <button onclick="logout()" title="Logout" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;flex-shrink:0">⏏</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title" id="pageTitle">HOME</div>
+      </div>
+      <div class="topbar-actions" id="topActs"></div>
+    </header>
+    <div class="content fade" id="pg"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="mOv" onclick="if(event.target===this)closeMod()">
+  <div class="modal" id="mBox">
+    <div class="modal-hd">
+      <div class="modal-title" id="mTitle"></div>
+      <button class="modal-x" onclick="closeMod()">✕</button>
+    </div>
+    <div id="mBody"></div>
+    <div class="modal-foot" id="mFoot"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG & STATE
+// ══════════════════════════════════════════════════════
+const API = 'http://localhost:3001/api';
+let TOKEN = localStorage.getItem('fc_token');
+let ADMIN = localStorage.getItem('fc_admin');
+let PAGE  = 'home';
+
+// ══════════════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════════════
+async function api(path, opts = {}) {
+  const hdrs = { 'Content-Type': 'application/json' };
+  if (TOKEN) hdrs['Authorization'] = 'Bearer ' + TOKEN;
+  try {
+    const r = await fetch(API + path, { ...opts, headers: { ...hdrs, ...(opts.headers||{}) } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Error');
+    return d;
+  } catch(e) {
+    if (e.message.includes('fetch') || e.message.includes('Failed') || e.message.includes('NetworkError')) {
+      return demo(path, opts);
+    }
+    throw e;
+  }
+}
+
+// Demo data (works without backend)
+const DEMO_TEAMS = [
+  {id:1,name:'Real Madrid',   short_name:'RMA',logo_color:'#b8860b',city:'Madrid',    founded:1902,coach:'Carlo Ancelotti'},
+  {id:2,name:'Barcelona',     short_name:'BAR',logo_color:'#A50044',city:'Barcelona', founded:1899,coach:'Xavi Hernández'},
+  {id:3,name:'Atletico Madrid',short_name:'ATM',logo_color:'#CB3524',city:'Madrid',   founded:1903,coach:'Diego Simeone'},
+  {id:4,name:'Sevilla',       short_name:'SEV',logo_color:'#D10024',city:'Sevilla',   founded:1890,coach:'Quique Sanchez'},
+  {id:5,name:'Valencia',      short_name:'VAL',logo_color:'#FF8000',city:'Valencia',  founded:1919,coach:'Ruben Baraja'},
+  {id:6,name:'Villarreal',    short_name:'VIL',logo_color:'#c8a000',city:'Villarreal',founded:1923,coach:'Marcelino'},
+  {id:7,name:'Real Sociedad', short_name:'RSO',logo_color:'#003DA5',city:'San Sebastián',founded:1909,coach:'Imanol Alguacil'},
+  {id:8,name:'Athletic Bilbao',short_name:'ATH',logo_color:'#EE2523',city:'Bilbao',  founded:1898,coach:'Ernesto Valverde'},
+];
+const DEMO_STANDINGS = [
+  {team_id:1,position:1,name:'Real Madrid',   short_name:'RMA',logo_color:'#b8860b',city:'Madrid',    played:3,won:3,drawn:0,lost:0,goals_for:9, goals_against:2,goal_difference:7, points:9},
+  {team_id:2,position:2,name:'Barcelona',     short_name:'BAR',logo_color:'#A50044',city:'Barcelona', played:3,won:2,drawn:1,lost:0,goals_for:7, goals_against:3,goal_difference:4, points:7},
+  {team_id:8,position:3,name:'Athletic Bilbao',short_name:'ATH',logo_color:'#EE2523',city:'Bilbao',  played:3,won:2,drawn:0,lost:1,goals_for:3, goals_against:3,goal_difference:0, points:6},
+  {team_id:3,position:4,name:'Atletico Madrid',short_name:'ATM',logo_color:'#CB3524',city:'Madrid',   played:3,won:1,drawn:2,lost:0,goals_for:4, goals_against:3,goal_difference:1, points:5},
+  {team_id:6,position:5,name:'Villarreal',    short_name:'VIL',logo_color:'#c8a000',city:'Villarreal',played:3,won:1,drawn:0,lost:1,goals_for:3, goals_against:1,goal_difference:2, points:3},
+  {team_id:7,position:6,name:'Real Sociedad', short_name:'RSO',logo_color:'#003DA5',city:'San Sebastián',played:2,won:1,drawn:0,lost:0,goals_for:3,goals_against:0,goal_difference:3,points:3},
+  {team_id:4,position:7,name:'Sevilla',       short_name:'SEV',logo_color:'#D10024',city:'Sevilla',   played:3,won:0,drawn:1,lost:2,goals_for:1, goals_against:6,goal_difference:-5,points:1},
+  {team_id:5,position:8,name:'Valencia',      short_name:'VAL',logo_color:'#FF8000',city:'Valencia',  played:3,won:0,drawn:0,lost:3,goals_for:1, goals_against:5,goal_difference:-4,points:0},
+];
+const DEMO_MATCHES = [
+  {id:1,home_team_id:1,away_team_id:2,home_score:2,away_score:1,match_date:'2024-09-15',matchweek:1,venue:'Santiago Bernabéu',status:'finished',home_team_name:'Real Madrid',away_team_name:'Barcelona',home_short:'RMA',away_short:'BAR',home_color:'#b8860b',away_color:'#A50044'},
+  {id:2,home_team_id:3,away_team_id:4,home_score:1,away_score:1,match_date:'2024-09-16',matchweek:1,venue:'Metropolitano',status:'finished',home_team_name:'Atletico Madrid',away_team_name:'Sevilla',home_short:'ATM',away_short:'SEV',home_color:'#CB3524',away_color:'#D10024'},
+  {id:3,home_team_id:5,away_team_id:6,home_score:0,away_score:2,match_date:'2024-09-17',matchweek:1,venue:'Mestalla',status:'finished',home_team_name:'Valencia',away_team_name:'Villarreal',home_short:'VAL',away_short:'VIL',home_color:'#FF8000',away_color:'#c8a000'},
+  {id:4,home_team_id:7,away_team_id:8,home_score:3,away_score:0,match_date:'2024-09-18',matchweek:1,venue:'Anoeta',status:'finished',home_team_name:'Real Sociedad',away_team_name:'Athletic Bilbao',home_short:'RSO',away_short:'ATH',home_color:'#003DA5',away_color:'#EE2523'},
+  {id:5,home_team_id:2,away_team_id:3,home_score:2,away_score:2,match_date:'2024-09-22',matchweek:2,venue:'Camp Nou',status:'finished',home_team_name:'Barcelona',away_team_name:'Atletico Madrid',home_short:'BAR',away_short:'ATM',home_color:'#A50044',away_color:'#CB3524'},
+  {id:6,home_team_id:1,away_team_id:4,home_score:4,away_score:0,match_date:'2024-09-23',matchweek:2,venue:'Santiago Bernabéu',status:'finished',home_team_name:'Real Madrid',away_team_name:'Sevilla',home_short:'RMA',away_short:'SEV',home_color:'#b8860b',away_color:'#D10024'},
+  {id:7,home_team_id:8,away_team_id:5,home_score:2,away_score:1,match_date:'2024-09-25',matchweek:2,venue:'San Mamés',status:'finished',home_team_name:'Athletic Bilbao',away_team_name:'Valencia',home_short:'ATH',away_short:'VAL',home_color:'#EE2523',away_color:'#FF8000'},
+  {id:8,home_team_id:1,away_team_id:3,home_score:3,away_score:1,match_date:'2024-10-05',matchweek:3,venue:'Santiago Bernabéu',status:'finished',home_team_name:'Real Madrid',away_team_name:'Atletico Madrid',home_short:'RMA',away_short:'ATM',home_color:'#b8860b',away_color:'#CB3524'},
+  {id:9,home_team_id:2,away_team_id:5,home_score:2,away_score:0,match_date:'2024-10-06',matchweek:3,venue:'Camp Nou',status:'finished',home_team_name:'Barcelona',away_team_name:'Valencia',home_short:'BAR',away_short:'VAL',home_color:'#A50044',away_color:'#FF8000'},
+  {id:10,home_team_id:4,away_team_id:8,home_score:0,away_score:1,match_date:'2024-10-07',matchweek:3,venue:'Ramón Sánchez',status:'finished',home_team_name:'Sevilla',away_team_name:'Athletic Bilbao',home_short:'SEV',away_short:'ATH',home_color:'#D10024',away_color:'#EE2523'},
+  {id:11,home_team_id:6,away_team_id:5,home_score:null,away_score:null,match_date:'2024-10-20',matchweek:4,venue:'La Cerámica',status:'scheduled',home_team_name:'Villarreal',away_team_name:'Valencia',home_short:'VIL',away_short:'VAL',home_color:'#c8a000',away_color:'#FF8000'},
+  {id:12,home_team_id:1,away_team_id:7,home_score:null,away_score:null,match_date:'2024-10-21',matchweek:4,venue:'Santiago Bernabéu',status:'scheduled',home_team_name:'Real Madrid',away_team_name:'Real Sociedad',home_short:'RMA',away_short:'RSO',home_color:'#b8860b',away_color:'#003DA5'},
+  {id:13,home_team_id:3,away_team_id:8,home_score:null,away_score:null,match_date:'2024-10-22',matchweek:4,venue:'Metropolitano',status:'scheduled',home_team_name:'Atletico Madrid',away_team_name:'Athletic Bilbao',home_short:'ATM',away_short:'ATH',home_color:'#CB3524',away_color:'#EE2523'},
+];
+const DEMO_REPORTS = [
+  {id:1,match_id:1,reporter_name:'John Doe',message:'Score was actually 3-1, not 2-1. I was at the stadium.',status:'pending',created_at:'2024-09-16T10:00:00',home_team_name:'Real Madrid',away_team_name:'Barcelona',home_score:2,away_score:1},
+  {id:2,match_id:3,reporter_name:'Maria Garcia',message:'Wrong venue listed. Match was at Estadio de Mestalla, not Mestalla.',status:'reviewed',admin_note:'Verified - corrected.',created_at:'2024-09-18T14:00:00',home_team_name:'Valencia',away_team_name:'Villarreal',home_score:0,away_score:2},
+];
+
+let _demoTeams = [...DEMO_TEAMS];
+let _demoMatches = [...DEMO_MATCHES];
+let _demoReports = [...DEMO_REPORTS];
+let _demoNextId = { team: 9, match: 14, report: 3 };
+
+function demo(path, opts) {
+  const method = opts.method || 'GET';
+  const body = opts.body ? JSON.parse(opts.body) : {};
+  
+  if (path === '/standings') return DEMO_STANDINGS;
+  if (path === '/stats') return {teams:_demoTeams.length,matches:_demoMatches.length,finished:_demoMatches.filter(m=>m.status==='finished').length,scheduled:_demoMatches.filter(m=>m.status==='scheduled').length,pendingReports:_demoReports.filter(r=>r.status==='pending').length,topScorer:{name:'Real Madrid',goals_for:9}};
+  if (path === '/health') return {status:'ok (demo)'};
+  if (path === '/auth/login') {
+    if (body.username === 'admin' && body.password === 'admin123') return {token:'demo-token',username:'admin'};
+    throw new Error('Invalid credentials');
+  }
+  if (path.startsWith('/teams')) {
+    const idMatch = path.match(/\/teams\/(\d+)/);
+    if (idMatch) {
+      const tid = parseInt(idMatch[1]);
+      if (method === 'PUT') {
+        const i = _demoTeams.findIndex(t=>t.id===tid);
+        if (i >= 0) _demoTeams[i] = {..._demoTeams[i],...body};
+        return {message:'Team updated'};
+      }
+      if (method === 'DELETE') { _demoTeams = _demoTeams.filter(t=>t.id!==tid); return {message:'Team deleted'}; }
+      const t = _demoTeams.find(t=>t.id===tid);
+      const s = DEMO_STANDINGS.find(s=>s.team_id===tid);
+      return {...t, standing:s, recentMatches:_demoMatches.filter(m=>(m.home_team_id===tid||m.away_team_id===tid)&&m.status==='finished').slice(0,5)};
+    }
+    const q = path.includes('?') ? new URLSearchParams(path.split('?')[1]) : null;
+    const search = q ? q.get('search') : null;
+    if (method === 'POST') {
+      const nt = {...body, id: _demoNextId.team++};
+      _demoTeams.push(nt);
+      return {id:nt.id,message:'Team created'};
+    }
+    let ts = [..._demoTeams];
+    if (search) ts = ts.filter(t=>t.name.toLowerCase().includes(search.toLowerCase())||((t.city||'').toLowerCase().includes(search.toLowerCase())));
+    return ts.sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  if (path.startsWith('/matches')) {
+    const idMatch = path.match(/\/matches\/(\d+)/);
+    if (idMatch) {
+      const mid = parseInt(idMatch[1]);
+      if (method === 'PUT') {
+        const i = _demoMatches.findIndex(m=>m.id===mid);
+        if (i >= 0) {
+          const hs = body.home_score, as_ = body.away_score;
+          const status = (hs!=null&&as_!=null)?'finished':(body.status||'scheduled');
+          const ht = _demoTeams.find(t=>t.id==body.home_team_id)||{};
+          const at = _demoTeams.find(t=>t.id==body.away_team_id)||{};
+          _demoMatches[i] = {..._demoMatches[i],...body,status,home_team_name:ht.name||_demoMatches[i].home_team_name,away_team_name:at.name||_demoMatches[i].away_team_name,home_short:ht.short_name||_demoMatches[i].home_short,away_short:at.short_name||_demoMatches[i].away_short,home_color:ht.logo_color||_demoMatches[i].home_color,away_color:at.logo_color||_demoMatches[i].away_color};
+        }
+        return {message:'Match updated'};
+      }
+      if (method === 'DELETE') { _demoMatches = _demoMatches.filter(m=>m.id!==mid); return {message:'Match deleted'}; }
+      return _demoMatches.find(m=>m.id===mid);
+    }
+    if (method === 'POST') {
+      const hs = body.home_score, as_ = body.away_score;
+      const status = (hs!=null&&as_!=null)?'finished':(body.status||'scheduled');
+      const ht = _demoTeams.find(t=>t.id==body.home_team_id)||{};
+      const at = _demoTeams.find(t=>t.id==body.away_team_id)||{};
+      const nm = {...body,id:_demoNextId.match++,status,home_team_name:ht.name||'?',away_team_name:at.name||'?',home_short:ht.short_name||'?',away_short:at.short_name||'?',home_color:ht.logo_color||'#555',away_color:at.logo_color||'#555'};
+      _demoMatches.unshift(nm);
+      return {id:nm.id,message:'Match created'};
+    }
+    const q = path.includes('?') ? new URLSearchParams(path.split('?')[1]) : null;
+    const page = parseInt(q?.get('page')||1), limit = parseInt(q?.get('limit')||20);
+    const statusF = q?.get('status'), mwk = q?.get('matchweek');
+    let ms = [..._demoMatches].sort((a,b)=>new Date(b.match_date)-new Date(a.match_date));
+    if (statusF) ms = ms.filter(m=>m.status===statusF);
+    if (mwk) ms = ms.filter(m=>m.matchweek==mwk);
+    const total = ms.length;
+    return {matches:ms.slice((page-1)*limit, page*limit), total, page, pages:Math.max(1,Math.ceil(total/limit))};
+  }
+  if (path.startsWith('/reports')) {
+    const idMatch = path.match(/\/reports\/(\d+)/);
+    if (idMatch) {
+      const rid = parseInt(idMatch[1]);
+      if (method === 'PUT') {
+        const i = _demoReports.findIndex(r=>r.id===rid);
+        if (i >= 0) _demoReports[i] = {..._demoReports[i],...body};
+        return {message:'Report updated'};
+      }
+    }
+    if (method === 'POST') {
+      const nr = {...body,id:_demoNextId.report++,status:'pending',created_at:new Date().toISOString()};
+      _demoReports.unshift(nr);
+      return {id:nr.id,message:'Report submitted'};
+    }
+    const q = path.includes('?') ? new URLSearchParams(path.split('?')[1]) : null;
+    const page = parseInt(q?.get('page')||1), limit = parseInt(q?.get('limit')||20);
+    const statusF = q?.get('status');
+    let rs = [..._demoReports];
+    if (statusF) rs = rs.filter(r=>r.status===statusF);
+    return {reports:rs.slice((page-1)*limit, page*limit), total:rs.length, page, pages:Math.max(1,Math.ceil(rs.length/limit))};
+  }
+  return {};
+}
+
+// ══════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════
+async function doLogin() {
+  const u = document.getElementById('lUser').value.trim();
+  const p = document.getElementById('lPass').value;
+  try {
+    const d = await api('/auth/login', {method:'POST', body:JSON.stringify({username:u,password:p})});
+    TOKEN = d.token; ADMIN = d.username;
+    localStorage.setItem('fc_token', TOKEN);
+    localStorage.setItem('fc_admin', ADMIN);
+    updateAuthUI();
+    document.getElementById('loginWrap').style.display = 'none';
+    go('admin-dash');
+    toast('Welcome back, ' + ADMIN + '! 🎉', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function logout() {
+  TOKEN = null; ADMIN = null;
+  localStorage.removeItem('fc_token');
+  localStorage.removeItem('fc_admin');
+  updateAuthUI();
+  go('home');
+  toast('Logged out');
+}
+
+function updateAuthUI() {
+  const a = !!TOKEN;
+  document.getElementById('authArea').style.display  = a ? 'none' : 'block';
+  document.getElementById('adminArea').style.display = a ? 'block' : 'none';
+  document.getElementById('adminNav').style.display  = a ? 'block' : 'none';
+  if (a) {
+    document.getElementById('adminName').textContent = ADMIN || 'Admin';
+    document.getElementById('adminAv').textContent   = (ADMIN || 'A')[0].toUpperCase();
+  }
+  loadReportBadge();
+}
+
+async function loadReportBadge() {
+  if (!TOKEN) return;
+  try {
+    const d = await api('/stats');
+    const n = d.pendingReports || 0;
+    const b = document.getElementById('rpBadge');
+    b.style.display = n > 0 ? 'inline' : 'none';
+    b.textContent = n;
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════
+// ROUTER
+// ══════════════════════════════════════════════════════
+const TITLES = {home:'HOME',standings:'LEAGUE TABLE',matches:'MATCH RESULTS',teams:'TEAMS',report:'REPORT ISSUE','admin-dash':'DASHBOARD','admin-teams':'MANAGE TEAMS','admin-matches':'MANAGE MATCHES','admin-reports':'REPORTS'};
+
+function go(page) {
+  PAGE = page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const nav = document.getElementById('n-'+page);
+  if (nav) nav.classList.add('active');
+  document.getElementById('pageTitle').textContent = TITLES[page] || page.toUpperCase();
+  document.getElementById('topActs').innerHTML = '';
+  if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+  const pg = document.getElementById('pg');
+  pg.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">Loading…</div>';
+  pg.className = 'content fade';
+  ({home:pgHome,standings:pgStandings,matches:pgMatches,teams:pgTeams,report:pgReport,'admin-dash':pgAdminDash,'admin-teams':pgAdminTeams,'admin-matches':pgAdminMatches,'admin-reports':pgAdminReports}[page] || (() => {}))();
+}
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const set = (id, html) => { const el = $(id); if(el) el.innerHTML = html; };
+
+function logoStyle(color) {
+  const dark = ['#FFFFFF','#ffffff','#fff','#FFC500','#FF8000','#c8a000','#b8860b'];
+  const isDark = dark.includes(color);
+  return `background:${color};color:${isDark ? '#111' : '#fff'}`;
+}
+
+function fmtDate(d) { return d ? new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : ''; }
+
+function matchCard(m, clickable=true) {
+  const scored = m.home_score !== null && m.away_score !== null;
+  const score = scored ? `<div class="match-score">${m.home_score} – ${m.away_score}</div>` : `<div class="match-score sched">vs</div>`;
+  const onclick = clickable ? `onclick="showMatchDetail(${m.id})"` : '';
+  return `
+  <div class="match-card" ${onclick}>
+    <div class="match-teams">
+      <div class="match-team">
+        <div class="team-logo" style="${logoStyle(m.home_color||'#555')};width:28px;height:28px;font-size:9px">${m.home_short}</div>
+        <div class="match-team-name">${m.home_team_name}</div>
+      </div>
+      ${score}
+      <div class="match-team away">
+        <div class="team-logo" style="${logoStyle(m.away_color||'#555')};width:28px;height:28px;font-size:9px">${m.away_short}</div>
+        <div class="match-team-name">${m.away_team_name}</div>
+      </div>
+    </div>
+    <div class="match-meta">
+      <div class="match-wk">Matchweek ${m.matchweek||1}</div>
+      <span class="badge ${m.status}">${m.status}</span>
+      <div class="match-date" style="margin-top:4px">${fmtDate(m.match_date)}</div>
+      ${m.venue ? `<div style="font-size:10px;color:var(--text3)">${m.venue}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function gd(n) { return n > 0 ? `<span style="color:var(--green)">+${n}</span>` : n < 0 ? `<span style="color:var(--red)">${n}</span>` : n; }
+
+function openMod(title, body, footer='') {
+  $('mTitle').textContent = title;
+  $('mBody').innerHTML = body;
+  $('mFoot').innerHTML = footer;
+  $('mOv').classList.add('open');
+}
+function closeMod() { $('mOv').classList.remove('open'); }
+
+function toast(msg, type='', icon='') {
+  const icons = {success:'✅',error:'❌','':'⚽'};
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||icons['']}</span><span>${msg}</span>`;
+  $('toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3200);
+}
+
+function paginationHtml(page, pages, onClickFn) {
+  if (pages <= 1) return '';
+  let h = '<div class="pages">';
+  h += `<button class="pg-btn" ${page<=1?'disabled':''} onclick="${onClickFn}(${page-1})">‹</button>`;
+  for (let i=1;i<=pages;i++) {
+    if (i===1||i===pages||Math.abs(i-page)<=1) h += `<button class="pg-btn ${i===page?'on':''}" onclick="${onClickFn}(${i})">${i}</button>`;
+    else if (i===page-2||i===page+2) h += '<button class="pg-btn" disabled>…</button>';
+  }
+  h += `<button class="pg-btn" ${page>=pages?'disabled':''} onclick="${onClickFn}(${page+1})">›</button>`;
+  return h + '</div>';
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: HOME
+// ══════════════════════════════════════════════════════
+async function pgHome() {
+  const [standings, md] = await Promise.all([api('/standings'), api('/matches?status=finished&limit=5')]);
+  const top3 = standings.slice(0,3);
+  const recent = (md.matches||md).slice(0,5);
+  const medals = ['🥇','🥈','🥉'];
+  const colors = ['var(--gold)','#c0c0c0','#cd7f32'];
+  $('pg').innerHTML = `
+    <div class="hero">
+      <div class="hero-tag">🏆 Season 2025 / 26</div>
+      <div class="hero-title">TUIT<br>CHAMPIONSHIP</div>
+      <div class="hero-sub">Track live standings, match results, and team statistics for the most thrilling football league.</div>
+    </div>
+    <div class="stats-grid">
+      ${top3.map((t,i)=>`
+        <div class="stat-card" style="--accent:${colors[i]}">
+          <div class="stat-lbl">${medals[i]} ${['Leader','2nd Place','3rd Place'][i]}</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div class="team-logo" style="${logoStyle(t.logo_color)}">${t.short_name}</div>
+            <div style="font-weight:700;font-size:15px">${t.name}</div>
+          </div>
+          <div class="stat-val">${t.points}<span style="font-family:var(--font-b);font-size:15px;color:var(--text3)"> pts</span></div>
+          <div class="stat-sub">${t.played} played · ${t.won}W ${t.drawn}D ${t.lost}L · GD ${t.goal_difference>0?'+':''}${t.goal_difference}</div>
+        </div>`).join('')}
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⚽ Recent Results</div><button class="btn btn-ghost btn-sm" onclick="go('matches')">View All</button></div>
+        <div class="match-list">${recent.map(m=>matchCard(m)).join('')}</div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Top Standings</div><button class="btn btn-ghost btn-sm" onclick="go('standings')">Full Table</button></div>
+        <table class="tbl">
+          <thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>PTS</th></tr></thead>
+          <tbody>
+            ${standings.slice(0,6).map((s,i)=>`
+              <tr style="cursor:pointer" onclick="showTeamDetail(${s.team_id})">
+                <td><span class="pos ${i<2?'cl':i<4?'el':''}">${s.position}</span></td>
+                <td><div class="team-cell">
+                  <div class="team-logo" style="${logoStyle(s.logo_color)};width:24px;height:24px;font-size:8px">${s.short_name}</div>
+                  <span class="td-s">${s.name}</span>
+                </div></td>
+                <td>${s.played}</td><td>${s.won}</td>
+                <td><span class="pts">${s.points}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: STANDINGS
+// ══════════════════════════════════════════════════════
+async function pgStandings() {
+  const data = await api('/standings');
+  $('pg').innerHTML = `
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--blue);border-radius:2px"></div>Champions League (Top 2)</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div>Europa League (3-4)</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div>Relegation (Bottom 2)</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:36px">#</th><th>Team</th>
+          <th title="Played">P</th><th title="Won" style="color:var(--green)">W</th>
+          <th title="Drawn" style="color:var(--gold)">D</th><th title="Lost" style="color:var(--red)">L</th>
+          <th>GF</th><th>GA</th><th>GD</th>
+          <th style="color:var(--gold)">PTS</th>
+        </tr></thead>
+        <tbody>
+          ${data.map((s,i)=>{
+            const n = data.length;
+            const zClass = i===2?'zone-sep':i===n-2?'zone-sep2':'';
+            const pClass = i<2?'cl':i<4?'el':i>=n-2?'rel':'';
+            return `<tr class="${zClass}" onclick="showTeamDetail(${s.team_id})" style="cursor:pointer">
+              <td><span class="pos ${pClass}">${s.position}</span></td>
+              <td><div class="team-cell">
+                <div class="team-logo" style="${logoStyle(s.logo_color)}">${s.short_name}</div>
+                <div><div class="td-s">${s.name}</div><div style="font-size:10px;color:var(--text3)">${s.city||''}</div></div>
+              </div></td>
+              <td>${s.played}</td>
+              <td style="color:var(--green)">${s.won}</td>
+              <td style="color:var(--gold)">${s.drawn}</td>
+              <td style="color:var(--red)">${s.lost}</td>
+              <td>${s.goals_for}</td>
+              <td>${s.goals_against}</td>
+              <td style="font-family:var(--font-m);font-size:12px">${gd(s.goal_difference)}</td>
+              <td><span class="pts">${s.points}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: MATCHES
+// ══════════════════════════════════════════════════════
+async function pgMatches() {
+  let filter = 'all', pg = 1;
+  window._matchPg = (p) => { pg = p; loadMatches(); };
+
+  async function loadMatches() {
+    const sp = filter === 'all' ? '' : `&status=${filter}`;
+    const data = await api(`/matches?limit=15&page=${pg}${sp}`);
+    const ms = data.matches || data;
+    const grouped = {};
+    ms.forEach(m => { const k = `Matchweek ${m.matchweek||1}`; (grouped[k]=grouped[k]||[]).push(m); });
+    set('matchBody', `
+      ${Object.entries(grouped).map(([wk,list])=>`
+        <div class="mwk-hd">${wk}</div>
+        ${list.map(m=>matchCard(m)).join('')}
+      `).join('')}
+      ${ms.length===0?'<div class="empty"><div class="empty-ico">⚽</div><div>No matches found</div></div>':''}
+      ${paginationHtml(data.page,data.pages,'_matchPg')}
+    `);
+  }
+
+  $('pg').innerHTML = `
+    <div class="filter-bar">
+      <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Status:</span>
+      <button class="chip on" id="fc-all" onclick="setMF('all')">All</button>
+      <button class="chip"    id="fc-fin" onclick="setMF('finished')">Finished</button>
+      <button class="chip"    id="fc-sch" onclick="setMF('scheduled')">Scheduled</button>
+    </div>
+    <div id="matchBody"></div>`;
+
+  window.setMF = (f) => {
+    filter = f; pg = 1;
+    ['all','fin','sch'].forEach(x=>$('fc-'+x)?.classList.remove('on'));
+    $('fc-'+(f==='all'?'all':f==='finished'?'fin':'sch'))?.classList.add('on');
+    loadMatches();
+  };
+  loadMatches();
+}
+
+async function showMatchDetail(id) {
+  const m = await api(`/matches/${id}`);
+  const scored = m.home_score !== null && m.away_score !== null;
+  openMod('Match Detail', `
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">Matchweek ${m.matchweek||1}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px">
+        <div style="text-align:center">
+          <div class="team-logo" style="${logoStyle(m.home_color)};width:52px;height:52px;font-size:14px;border-radius:12px;margin:0 auto 8px">${m.home_short}</div>
+          <div style="font-weight:700;font-size:16px">${m.home_team_name}</div>
+        </div>
+        <div style="font-family:var(--font-d);font-size:52px;letter-spacing:6px;color:${scored?'var(--text)':'var(--text3)'}">${scored?m.home_score+' – '+m.away_score:'vs'}</div>
+        <div style="text-align:center">
+          <div class="team-logo" style="${logoStyle(m.away_color)};width:52px;height:52px;font-size:14px;border-radius:12px;margin:0 auto 8px">${m.away_short}</div>
+          <div style="font-weight:700;font-size:16px">${m.away_team_name}</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:13px;color:var(--text2)">
+        <span>📅 ${fmtDate(m.match_date)}</span>
+        ${m.venue ? `<span>🏟️ ${m.venue}</span>` : ''}
+        <span class="badge ${m.status}">${m.status}</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);text-align:center">
+      <button class="btn btn-ghost btn-sm" onclick="closeMod();go('report')">⚠️ Report incorrect info</button>
+    </div>
+  `);
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: TEAMS
+// ══════════════════════════════════════════════════════
+async function pgTeams() {
+  $('topActs').innerHTML = `
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="fi search-fi" placeholder="Search teams…" oninput="searchTeams(this.value)">
+    </div>`;
+
+  async function loadTeams(search='') {
+    const [teams, standings] = await Promise.all([
+      api('/teams'+(search?`?search=${encodeURIComponent(search)}`:'')),
+      api('/standings')
+    ]);
+    const sm = {};
+    standings.forEach(s=>sm[s.team_id]=s);
+    if (teams.length === 0) {
+      $('pg').innerHTML = '<div class="empty"><div class="empty-ico">🛡️</div><div>No teams found</div></div>';
+      return;
+    }
+    $('pg').innerHTML = `<div class="grid3" id="teamsGrid">
+      ${teams.map(t=>{
+        const s=sm[t.id]||{};
+        return `<div class="card" onclick="showTeamDetail(${t.id})" style="cursor:pointer" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">
+            <div class="team-logo" style="${logoStyle(t.logo_color)};width:46px;height:46px;font-size:13px;border-radius:12px">${t.short_name}</div>
+            <div>
+              <div style="font-family:var(--font-d);font-size:17px;letter-spacing:1px">${t.name}</div>
+              <div style="font-size:11px;color:var(--text3)">${t.city||''} ${t.founded?'· Est. '+t.founded:''}</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">👔 ${t.coach||'Unknown'}</div>
+          <div style="display:flex;gap:12px;font-size:12px">
+            <span><span style="font-family:var(--font-d);font-size:18px;color:var(--gold)">${s.points??'–'}</span> <span style="color:var(--text3)">pts</span></span>
+            <span style="color:var(--text3)">|</span>
+            <span>${s.played??0} played</span>
+            <span style="color:var(--text3)">|</span>
+            <span style="color:${(s.goal_difference||0)>=0?'var(--green)':'var(--red)'}">GD ${(s.goal_difference||0)>0?'+':''}${s.goal_difference??0}</span>
+          </div>
+        </div>`;}).join('')}
+    </div>`;
+  }
+
+  window.searchTeams = (v) => loadTeams(v);
+  loadTeams();
+}
+
+async function showTeamDetail(tid) {
+  const t = await api(`/teams/${tid}`);
+  const s = t.standing || {};
+  const rm = t.recentMatches || [];
+  openMod(t.name, `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+      <div class="team-logo" style="${logoStyle(t.logo_color)};width:56px;height:56px;font-size:15px;border-radius:14px">${t.short_name}</div>
+      <div>
+        <div style="font-family:var(--font-d);font-size:22px;letter-spacing:1px">${t.name}</div>
+        <div style="font-size:12px;color:var(--text3)">${t.city||''} ${t.founded?'· Est. '+t.founded:''} ${t.coach?'· Coach: '+t.coach:''}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+      ${[['PTS',s.points??0,'var(--gold)'],['W',s.won??0,'var(--green)'],['D',s.drawn??0,'var(--gold)'],['L',s.lost??0,'var(--red)']].map(([l,v,c])=>`
+        <div style="background:var(--surface);border-radius:var(--rs);padding:12px;text-align:center">
+          <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">${l}</div>
+          <div style="font-family:var(--font-d);font-size:26px;color:${c}">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;font-size:12px;color:var(--text2)">
+      <div style="background:var(--surface);border-radius:var(--rs);padding:10px;text-align:center"><div style="color:var(--text3);font-size:10px;margin-bottom:3px">PLAYED</div>${s.played??0}</div>
+      <div style="background:var(--surface);border-radius:var(--rs);padding:10px;text-align:center"><div style="color:var(--text3);font-size:10px;margin-bottom:3px">GF / GA</div>${s.goals_for??0} / ${s.goals_against??0}</div>
+      <div style="background:var(--surface);border-radius:var(--rs);padding:10px;text-align:center"><div style="color:var(--text3);font-size:10px;margin-bottom:3px">GD</div>${gd(s.goal_difference??0)}</div>
+    </div>
+    ${rm.length > 0 ? `<div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Recent Form</div>
+    <div class="match-list">${rm.map(m=>matchCard(m,false)).join('')}</div>` : ''}
+  `);
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: REPORT
+// ══════════════════════════════════════════════════════
+async function pgReport() {
+  const data = await api('/matches?status=finished&limit=50');
+  const ms = data.matches || data;
+  $('pg').innerHTML = `
+    <div class="card" style="max-width:620px">
+      <div class="card-hd"><div class="card-title">📢 Report Incorrect Information</div></div>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:22px;line-height:1.6">Found an error in match data? Let us know and an admin will review your report.</p>
+      <div class="fg">
+        <label class="fl">Your Name (optional)</label>
+        <input id="rName" class="fi" placeholder="Anonymous">
+      </div>
+      <div class="fg">
+        <label class="fl">Related Match (optional)</label>
+        <select id="rMatch" class="fi fi-sel">
+          <option value="">— Select a match —</option>
+          ${ms.map(m=>`<option value="${m.id}">${m.home_team_name} ${m.home_score} – ${m.away_score} ${m.away_team_name} (${fmtDate(m.match_date)})</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Report Message *</label>
+        <textarea id="rMsg" class="fi" rows="4" placeholder="Describe the issue in detail…" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="submitReport()">📤 Submit Report</button>
+    </div>
+    <div class="card" style="max-width:620px;margin-top:20px;padding:18px 22px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:28px">🤖</div>
+        <div>
+          <div style="font-weight:700;margin-bottom:6px">Telegram Bot</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">You can also report issues via our Telegram bot. Search <strong style="color:var(--gold)">@FootballChampBot</strong> on Telegram and use the /report command.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function submitReport() {
+  const msg = $('rMsg').value.trim();
+  if (!msg) { toast('Please enter a message', 'error'); return; }
+  try {
+    await api('/reports', {method:'POST', body:JSON.stringify({
+      match_id: $('rMatch').value || null,
+      reporter_name: $('rName').value || 'Anonymous',
+      message: msg
+    })});
+    toast('Report submitted! Thank you.', 'success');
+    $('rMsg').value = ''; $('rName').value = ''; $('rMatch').value = '';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: ADMIN DASHBOARD
+// ══════════════════════════════════════════════════════
+async function pgAdminDash() {
+  if (!TOKEN) { toast('Please log in first', 'error'); go('home'); return; }
+  const [stats, standings] = await Promise.all([api('/stats'), api('/standings')]);
+  $('pg').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card" style="--accent:var(--gold)"><div class="stat-lbl">Total Teams</div><div class="stat-val">${stats.teams}</div><div class="stat-ico">🛡️</div></div>
+      <div class="stat-card" style="--accent:var(--blue)"><div class="stat-lbl">Total Matches</div><div class="stat-val">${stats.matches}</div><div class="stat-ico">⚽</div></div>
+      <div class="stat-card" style="--accent:var(--green)"><div class="stat-lbl">Finished</div><div class="stat-val">${stats.finished}</div><div class="stat-ico">✅</div></div>
+      <div class="stat-card" style="--accent:var(--text3)"><div class="stat-lbl">Scheduled</div><div class="stat-val">${stats.scheduled}</div><div class="stat-ico">📅</div></div>
+      <div class="stat-card" style="--accent:var(--red)"><div class="stat-lbl">Pending Reports</div><div class="stat-val">${stats.pendingReports}</div><div class="stat-ico">📋</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Current Standings</div></div>
+        <table class="tbl">
+          <thead><tr><th>#</th><th>Team</th><th>W</th><th>D</th><th>L</th><th>PTS</th></tr></thead>
+          <tbody>
+            ${standings.map(s=>`<tr>
+              <td><span class="pos ${s.position<=2?'cl':s.position<=4?'el':s.position>=standings.length-1?'rel':''}">${s.position}</span></td>
+              <td><div class="team-cell"><div class="team-logo" style="${logoStyle(s.logo_color)};width:24px;height:24px;font-size:8px">${s.short_name}</div><span class="td-s">${s.name}</span></div></td>
+              <td style="color:var(--green)">${s.won}</td>
+              <td style="color:var(--gold)">${s.drawn}</td>
+              <td style="color:var(--red)">${s.lost}</td>
+              <td><span class="pts">${s.points}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⚡ Quick Actions</div></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary" onclick="go('admin-teams')" style="justify-content:flex-start">🛡️ Add / Manage Teams</button>
+          <button class="btn btn-ghost"   onclick="go('admin-matches')" style="justify-content:flex-start">⚽ Add / Manage Matches</button>
+          <button class="btn btn-ghost"   onclick="go('admin-reports')" style="justify-content:flex-start">📋 Review Reports ${stats.pendingReports>0?`<span class="nav-badge">${stats.pendingReports}</span>`:''}</button>
+        </div>
+        ${stats.topScorer ? `
+        <div style="margin-top:20px;padding:16px;background:var(--surface);border-radius:var(--rs)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Top Scoring Team</div>
+          <div style="font-size:16px;font-weight:700">${stats.topScorer.name}</div>
+          <div style="font-size:13px;color:var(--text2)">${stats.topScorer.goals_for} goals scored</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: ADMIN TEAMS
+// ══════════════════════════════════════════════════════
+async function pgAdminTeams() {
+  if (!TOKEN) { toast('Please log in first', 'error'); go('home'); return; }
+  $('topActs').innerHTML = `<button class="btn btn-primary" onclick="openTeamModal()">+ Add Team</button>`;
+  await loadAdminTeams();
+}
+
+async function loadAdminTeams(search='') {
+  const teams = await api('/teams'+(search?`?search=${encodeURIComponent(search)}`:'')); 
+  $('pg').innerHTML = `
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-ico">🔍</span>
+        <input class="fi search-fi" placeholder="Search teams…" oninput="loadAdminTeams(this.value)" value="${search}">
+      </div>
+      <span style="margin-left:auto;font-size:12px;color:var(--text3)">${teams.length} teams</span>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr><th>Team</th><th>City</th><th>Founded</th><th>Coach</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody>
+          ${teams.length === 0 ? `<tr><td colspan="5"><div class="empty"><div class="empty-ico">🛡️</div><div>No teams yet. Add one!</div></div></td></tr>` :
+            teams.map(t=>`<tr>
+              <td><div class="team-cell">
+                <div class="team-logo" style="${logoStyle(t.logo_color)}">${t.short_name}</div>
+                <div><div class="td-s">${t.name}</div><div style="font-size:10px;color:var(--text3)">${t.short_name}</div></div>
+              </div></td>
+              <td>${t.city||'–'}</td>
+              <td>${t.founded||'–'}</td>
+              <td>${t.coach||'–'}</td>
+              <td style="text-align:right">
+                <div style="display:flex;gap:7px;justify-content:flex-end">
+                  <button class="btn btn-ghost btn-sm" onclick="openTeamModal(${JSON.stringify(t).replace(/"/g,'&quot;')})">✏️</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteTeam(${t.id},'${t.name.replace(/'/g,"\\'")}')">🗑️</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function openTeamModal(team=null) {
+  const edit = !!team;
+  openMod(edit ? 'Edit Team' : 'Add New Team', `
+    <div class="fg"><label class="fl">Team Name *</label><input id="tf-name" class="fi" placeholder="e.g. Real Madrid" value="${team?.name||''}"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Short Name *</label><input id="tf-short" class="fi" placeholder="e.g. RMA" maxlength="4" value="${team?.short_name||''}"></div>
+      <div class="fg"><label class="fl">Logo Color</label>
+        <div class="color-grp">
+          <input type="color" id="tf-color-pick" value="${team?.logo_color||'#1a73e8'}" oninput="$('tf-color').value=this.value">
+          <input id="tf-color" class="fi" value="${team?.logo_color||'#1a73e8'}" placeholder="#1a73e8" oninput="$('tf-color-pick').value=this.value">
+        </div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">City</label><input id="tf-city" class="fi" placeholder="e.g. Madrid" value="${team?.city||''}"></div>
+      <div class="fg"><label class="fl">Founded Year</label><input id="tf-founded" class="fi" type="number" placeholder="e.g. 1902" value="${team?.founded||''}"></div>
+    </div>
+    <div class="fg"><label class="fl">Head Coach</label><input id="tf-coach" class="fi" placeholder="e.g. Carlo Ancelotti" value="${team?.coach||''}"></div>
+  `, `
+    <button class="btn btn-ghost" onclick="closeMod()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveTeam(${team?.id||'null'})">${edit?'Save Changes':'Create Team'}</button>
+  `);
+}
+
+async function saveTeam(id) {
+  const body = {
+    name:     $('tf-name').value.trim(),
+    short_name: $('tf-short').value.trim().toUpperCase(),
+    logo_color: $('tf-color').value || '#1a73e8',
+    city:     $('tf-city').value.trim(),
+    founded:  $('tf-founded').value ? parseInt($('tf-founded').value) : null,
+    coach:    $('tf-coach').value.trim(),
+  };
+  if (!body.name || !body.short_name) { toast('Name and Short Name are required', 'error'); return; }
+  try {
+    if (id) await api(`/teams/${id}`, {method:'PUT', body:JSON.stringify(body)});
+    else    await api('/teams',       {method:'POST',body:JSON.stringify(body)});
+    closeMod();
+    toast(id ? 'Team updated!' : 'Team added!', 'success');
+    loadAdminTeams();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteTeam(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await api(`/teams/${id}`, {method:'DELETE'});
+    toast(`${name} deleted`, 'success');
+    loadAdminTeams();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: ADMIN MATCHES
+// ══════════════════════════════════════════════════════
+async function pgAdminMatches() {
+  if (!TOKEN) { toast('Please log in first', 'error'); go('home'); return; }
+  $('topActs').innerHTML = `<button class="btn btn-primary" onclick="openMatchModal()">+ Add Match</button>`;
+  await loadAdminMatches();
+}
+
+async function loadAdminMatches(filter='all', pg=1) {
+  const sp = filter==='all' ? '' : `&status=${filter}`;
+  const [data, teams] = await Promise.all([api(`/matches?limit=15&page=${pg}${sp}`), api('/teams')]);
+  const ms = data.matches || data;
+  window._amPg = (p) => loadAdminMatches(filter, p);
+
+  $('pg').innerHTML = `
+    <div class="filter-bar">
+      <button class="chip ${filter==='all'?'on':''}" onclick="loadAdminMatches('all')">All</button>
+      <button class="chip ${filter==='finished'?'on':''}" onclick="loadAdminMatches('finished')">Finished</button>
+      <button class="chip ${filter==='scheduled'?'on':''}" onclick="loadAdminMatches('scheduled')">Scheduled</button>
+      <span style="margin-left:auto;font-size:12px;color:var(--text3)">${data.total||ms.length} matches</span>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr><th>Match</th><th>Score</th><th>Date</th><th>Wk</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody>
+          ${ms.length === 0 ? `<tr><td colspan="6"><div class="empty"><div class="empty-ico">⚽</div><div>No matches found</div></div></td></tr>` :
+            ms.map(m=>`<tr>
+              <td>
+                <div class="team-cell">
+                  <div class="team-logo" style="${logoStyle(m.home_color||'#555')};width:22px;height:22px;font-size:8px">${m.home_short}</div>
+                  <span class="td-s" style="font-size:12px">${m.home_team_name}</span>
+                  <span style="color:var(--text3);font-size:11px">vs</span>
+                  <span style="font-weight:600;font-size:12px">${m.away_team_name}</span>
+                  <div class="team-logo" style="${logoStyle(m.away_color||'#555')};width:22px;height:22px;font-size:8px">${m.away_short}</div>
+                </div>
+              </td>
+              <td style="font-family:var(--font-d);font-size:16px">${m.home_score!==null&&m.away_score!==null?m.home_score+' – '+m.away_score:'–'}</td>
+              <td>${fmtDate(m.match_date)}</td>
+              <td>${m.matchweek}</td>
+              <td><span class="badge ${m.status}">${m.status}</span></td>
+              <td style="text-align:right">
+                <div style="display:flex;gap:7px;justify-content:flex-end">
+                  <button class="btn btn-ghost btn-sm" onclick="openMatchModal(${m.id})">✏️ Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteMatch(${m.id})">🗑️</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${paginationHtml(data.page||1, data.pages||1, '_amPg')}`;
+}
+
+async function openMatchModal(matchId=null) {
+  const teams = await api('/teams');
+  let m = null;
+  if (matchId) m = await api(`/matches/${matchId}`);
+  const opts = teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  openMod(m ? 'Edit Match' : 'Add Match', `
+    <div class="frow">
+      <div class="fg"><label class="fl">Home Team *</label>
+        <select id="mf-home" class="fi fi-sel">${opts}</select>
+      </div>
+      <div class="fg"><label class="fl">Away Team *</label>
+        <select id="mf-away" class="fi fi-sel">${opts}</select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Match Date *</label><input id="mf-date" class="fi" type="date" value="${m?.match_date||''}"></div>
+      <div class="fg"><label class="fl">Matchweek</label><input id="mf-wk" class="fi" type="number" min="1" value="${m?.matchweek||1}"></div>
+    </div>
+    <div class="fg"><label class="fl">Venue</label><input id="mf-venue" class="fi" placeholder="e.g. Santiago Bernabéu" value="${m?.venue||''}"></div>
+    <div style="padding:14px;background:var(--surface);border-radius:var(--rs);margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Score (leave blank for scheduled)</div>
+      <div class="frow3">
+        <div class="fg" style="margin:0"><label class="fl">Home Goals</label><input id="mf-hs" class="fi" type="number" min="0" placeholder="–" value="${m?.home_score??''}"></div>
+        <div class="fg" style="margin:0;display:flex;align-items:center;justify-content:center;padding-top:22px"><span style="font-family:var(--font-d);font-size:22px;color:var(--text3)">–</span></div>
+        <div class="fg" style="margin:0"><label class="fl">Away Goals</label><input id="mf-as" class="fi" type="number" min="0" placeholder="–" value="${m?.away_score??''}"></div>
+      </div>
+    </div>
+  `, `
+    <button class="btn btn-ghost" onclick="closeMod()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveMatch(${matchId||'null'})">${m?'Save Changes':'Add Match'}</button>
+  `);
+  if (m) {
+    $('mf-home').value = m.home_team_id;
+    $('mf-away').value = m.away_team_id;
+  }
+}
+
+async function saveMatch(id) {
+  const hs = $('mf-hs').value;
+  const as_ = $('mf-as').value;
+  const body = {
+    home_team_id: parseInt($('mf-home').value),
+    away_team_id: parseInt($('mf-away').value),
+    match_date:   $('mf-date').value,
+    matchweek:    parseInt($('mf-wk').value) || 1,
+    venue:        $('mf-venue').value.trim(),
+    home_score:   hs !== '' ? parseInt(hs) : null,
+    away_score:   as_ !== '' ? parseInt(as_) : null,
+  };
+  if (!body.match_date) { toast('Date is required', 'error'); return; }
+  if (body.home_team_id === body.away_team_id) { toast('Teams must be different', 'error'); return; }
+  try {
+    if (id) await api(`/matches/${id}`, {method:'PUT', body:JSON.stringify(body)});
+    else    await api('/matches',        {method:'POST',body:JSON.stringify(body)});
+    closeMod();
+    toast(id ? 'Match updated!' : 'Match added!', 'success');
+    loadAdminMatches();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteMatch(id) {
+  if (!confirm('Delete this match? Standings will be recalculated.')) return;
+  try {
+    await api(`/matches/${id}`, {method:'DELETE'});
+    toast('Match deleted', 'success');
+    loadAdminMatches();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE: ADMIN REPORTS
+// ══════════════════════════════════════════════════════
+async function pgAdminReports() {
+  if (!TOKEN) { toast('Please log in first', 'error'); go('home'); return; }
+  await loadAdminReports('pending');
+}
+
+async function loadAdminReports(filter='all', pg=1) {
+  const sp = filter==='all' ? '' : `&status=${filter}`;
+  const data = await api(`/reports?limit=15&page=${pg}${sp}`);
+  const rs = data.reports || data;
+  window._rpPg = (p) => loadAdminReports(filter, p);
+
+  $('pg').innerHTML = `
+    <div class="filter-bar">
+      <button class="chip ${filter==='all'?'on':''}"      onclick="loadAdminReports('all')">All</button>
+      <button class="chip ${filter==='pending'?'on':''}"  onclick="loadAdminReports('pending')">Pending</button>
+      <button class="chip ${filter==='reviewed'?'on':''}" onclick="loadAdminReports('reviewed')">Reviewed</button>
+      <button class="chip ${filter==='resolved'?'on':''}" onclick="loadAdminReports('resolved')">Resolved</button>
+      <span style="margin-left:auto;font-size:12px;color:var(--text3)">${data.total||rs.length} reports</span>
+    </div>
+    ${rs.length === 0 ? '<div class="empty"><div class="empty-ico">📋</div><div>No reports found</div></div>' :
+      '<div class="match-list">' + rs.map(r=>`
+        <div class="card" style="padding:16px 20px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span class="badge ${r.status}">${r.status}</span>
+                <span style="font-size:11px;color:var(--text3)">${r.reporter_name||'Anonymous'} · ${new Date(r.created_at).toLocaleDateString()}</span>
+              </div>
+              ${r.home_team_name ? `<div style="font-size:12px;color:var(--text2);margin-bottom:7px">📋 ${r.home_team_name} ${r.home_score??'?'} – ${r.away_score??'?'} ${r.away_team_name}</div>` : ''}
+              <div style="font-size:14px;color:var(--text)">${r.message}</div>
+              ${r.admin_note ? `<div style="margin-top:8px;padding:8px 11px;background:rgba(34,197,94,.08);border-left:2px solid var(--green);border-radius:0 4px 4px 0;font-size:12px;color:var(--text2)"><strong>Admin note:</strong> ${r.admin_note}</div>` : ''}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;flex-shrink:0">
+              ${r.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="reviewReport(${r.id},'reviewed')">Mark Reviewed</button>` : ''}
+              ${r.status!=='resolved' ? `<button class="btn btn-ghost btn-sm" onclick="reviewReport(${r.id},'resolved')">Resolve</button>` : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>'}
+    ${paginationHtml(data.page||1, data.pages||1, '_rpPg')}`;
+}
+
+async function reviewReport(id, status) {
+  const note = status === 'resolved' ? prompt('Add a note (optional):') : null;
+  try {
+    await api(`/reports/${id}`, {method:'PUT', body:JSON.stringify({status, admin_note:note||''})});
+    toast(`Report marked as ${status}`, 'success');
+    loadAdminReports();
+    loadReportBadge();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+updateAuthUI();
+go('home');
+</script>
+</body>
+</html>
