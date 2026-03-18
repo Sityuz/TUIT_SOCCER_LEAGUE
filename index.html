@@ -246,7 +246,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
         <button class="nav-item"        id="n-standings"  onclick="go('standings')"><span class="nav-icon">📊</span>League Table</button>
         <button class="nav-item"        id="n-matches"    onclick="go('matches')"><span class="nav-icon">⚽</span>Match Results</button>
         <button class="nav-item"        id="n-teams"      onclick="go('teams')"><span class="nav-icon">🛡️</span>Teams</button>
-        <button class="nav-item"        id="n-report"     onclick="go('report')"><span class="nav-icon">📢</span>Report Issue</button>
+        
       </div>
       <div class="nav-sect" id="adminNav" style="display:none">
         <div class="nav-lbl">Admin</div>
@@ -535,7 +535,7 @@ async function loadReportBadge() {
 // ══════════════════════════════════════════════════════
 // ROUTER
 // ══════════════════════════════════════════════════════
-const TITLES = {home:'HOME',standings:'LEAGUE TABLE',matches:'MATCH RESULTS',teams:'TEAMS',report:'REPORT ISSUE','admin-dash':'DASHBOARD','admin-teams':'MANAGE TEAMS','admin-matches':'MANAGE MATCHES','admin-reports':'REPORTS'};
+const TITLES = {home:'HOME',standings:'LEAGUE TABLE',matches:'MATCH RESULTS',teams:'TEAMS','admin-dash':'DASHBOARD','admin-teams':'MANAGE TEAMS','admin-matches':'MANAGE MATCHES','admin-reports':'REPORTS'};
 
 function go(page) {
   PAGE = page;
@@ -896,8 +896,7 @@ async function pgReport() {
         <div style="font-size:28px">🤖</div>
         <div>
           <div style="font-weight:700;margin-bottom:6px">Telegram Bot</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6">You can also report issues via our Telegram bot. Search <strong style="color:var(--gold)">@FootballChampBot</strong> on Telegram and use the /report command.</div>
-        </div>
+                  </div>
       </div>
     </div>`;
 }
