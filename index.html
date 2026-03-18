@@ -63,14 +63,14 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 
 /* ── CARDS ── */
-.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s;opacity: 0.9;}
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .card-title{font-family:var(--font-d);font-size:19px;letter-spacing:1px}
 
 /* ── STAT CARDS ── */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--gold))}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;opacity:0.8;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--gold));opacity: 0.8;}
 .stat-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
 .stat-val{font-family:var(--font-d);font-size:38px;line-height:1}
 .stat-sub{font-size:11px;color:var(--text2);margin-top:3px}
@@ -94,7 +94,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
 .zone-sep2 td{border-top:2px solid rgba(239,68,68,.3)!important}
 
 /* ── MATCH CARD ── */
-.match-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer}
+.match-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer;opacity:0.9}
 .match-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
 .match-teams{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .match-team{display:flex;align-items:center;gap:9px;flex:1}
@@ -152,7 +152,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
 .login-ico{width:60px;height:60px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;box-shadow:0 8px 28px rgba(245,197,24,.3)}
 
 /* ── HERO ── */
-.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:var(--r);padding:36px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:var(--r);padding:36px;margin-bottom:28px;position:relative;overflow:hidden;opacity:0.9}
 .hero::before{content:'⚽';position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:110px;opacity:.05;user-select:none}
 .hero-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .hero-title{font-family:var(--font-d);font-size:44px;letter-spacing:3px;line-height:1;margin-bottom:10px}
@@ -272,7 +272,14 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
     </div>
   </aside>
 
-  <div class="main">
+  <div class="main" style="
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        url('https://upload.wikimedia.org/wikipedia/commons/2/21/TUIT_70yil.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+">
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:14px">
         <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
@@ -304,7 +311,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
 // ══════════════════════════════════════════════════════
 // CONFIG & STATE
 // ══════════════════════════════════════════════════════
-const API = 'http://localhost:3001/api';
+const API = 'https://sityuz.pythonanywhere.com/api/';
 let TOKEN = localStorage.getItem('fc_token');
 let ADMIN = localStorage.getItem('fc_admin');
 let PAGE  = 'home';
@@ -670,11 +677,7 @@ async function pgHome() {
 async function pgStandings() {
   const data = await api('/standings');
   $('pg').innerHTML = `
-    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--blue);border-radius:2px"></div>Champions League (Top 2)</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div>Europa League (3-4)</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div>Relegation (Bottom 2)</div>
-    </div>
+    
     <div class="card" style="padding:0;overflow:hidden">
       <table class="tbl">
         <thead><tr>
