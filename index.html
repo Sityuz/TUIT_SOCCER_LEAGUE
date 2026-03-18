@@ -253,7 +253,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
         <button class="nav-item" id="n-admin-dash"    onclick="go('admin-dash')"><span class="nav-icon">📈</span>Dashboard</button>
         <button class="nav-item" id="n-admin-teams"   onclick="go('admin-teams')"><span class="nav-icon">🛡️</span>Manage Teams</button>
         <button class="nav-item" id="n-admin-matches" onclick="go('admin-matches')"><span class="nav-icon">🎯</span>Manage Matches</button>
-        <button class="nav-item" id="n-admin-reports" onclick="go('admin-reports')">
+        
           
           <span class="nav-badge" id="rpBadge" style="display:none">0</span>
         </button>
@@ -951,8 +951,7 @@ async function pgAdminDash() {
         <div style="display:flex;flex-direction:column;gap:10px">
           <button class="btn btn-primary" onclick="go('admin-teams')" style="justify-content:flex-start">🛡️ Add / Manage Teams</button>
           <button class="btn btn-ghost"   onclick="go('admin-matches')" style="justify-content:flex-start">⚽ Add / Manage Matches</button>
-          <button class="btn btn-ghost"   onclick="go('admin-reports')" style="justify-content:flex-start">📋 Review Reports ${stats.pendingReports>0?`<span class="nav-badge">${stats.pendingReports}</span>`:''}</button>
-        </div>
+          
         ${stats.topScorer ? `
         <div style="margin-top:20px;padding:16px;background:var(--surface);border-radius:var(--rs)">
           <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Top Scoring Team</div>
