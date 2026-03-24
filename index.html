@@ -216,18 +216,18 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height
     </div>
     <div class="fg">
       <label class="fl">Username</label>
-      <input id="lUser" class="fi" placeholder="admin" value="admin">
+      <input id="lUser" class="fi" placeholder="username">
     </div>
     <div class="fg">
       <label class="fl">Password</label>
-      <input id="lPass" class="fi" type="password" placeholder="••••••••" value="admin123" onkeydown="if(event.key==='Enter')doLogin()">
+      <input id="lPass" class="fi" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px" onclick="doLogin()">🔐 Sign In</button>
     <div style="margin-top:12px;text-align:center">
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('loginWrap').style.display='none'">← Back to Public View</button>
     </div>
     <div style="margin-top:18px;padding:11px;background:rgba(245,197,24,.07);border-radius:8px;font-size:11px;color:var(--text2);text-align:center">
-      Default credentials: <strong>admin</strong> / <strong>admin123</strong>
+      You should enter login and password
     </div>
   </div>
 </div>
